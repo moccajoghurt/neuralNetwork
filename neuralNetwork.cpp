@@ -126,9 +126,12 @@ void Network::backPropagate(vector<float> trainingValues) {
         exit(1);
     }
     for (int i = neuralNetwork.size() - 1; i > 0; i--) {
+        vector<float> totalErrorWrtOutputs;
+        vector<float> outputWrtTotalNetInputs;
         if (i == neuralNetwork.size() - 1) {
             // we are in the Output Layer
             float totalError = 0;
+            // calculate the total error
             for (int n = 0; n < neuralNetwork[i].size(); n++) {
                 float deltaSum = trainingValues[n] - neuralNetwork[i][n].getLastCalculatedOutput();
                 //float deltaOutputSum = derivateSigmoidFunc(neuralNetwork[i][n].getLastSum()) * deltaSum;
@@ -139,17 +142,31 @@ void Network::backPropagate(vector<float> trainingValues) {
                 vector<float> lastInputs = neuralNetwork[i][n].getLastInput();
                 float totalErrorWrtOutput = -(trainingValues[n] - neuralNetwork[i][n].getLastCalculatedOutput()); // Wrt = with respect to
                 float outputWrtTotalNetInput = derivateLogisticFunc(neuralNetwork[i][n].getLastCalculatedOutput());
+                // cout << totalErrorWrtOutput << " " << outputWrtTotalNetInput << endl;
+                totalErrorWrtOutputs.push_back(totalErrorWrtOutput);
+                outputWrtTotalNetInputs.push_back(outputWrtTotalNetInput);
                 vector<float> neuronWeights = neuralNetwork[i][n].getWeights();
                 for (int x = 0; x < neuronWeights.size(); x++) {
-                    // cout << totalErrorWrtOutput << " " << outputWrtTotalNetInput << " " << lastInputs[x] << endl;
                     float totalErrorWrtWeight = totalErrorWrtOutput * outputWrtTotalNetInput * lastInputs[x];
                     float newWeight = neuronWeights[x] - neuralNetwork[i][n].getLearningRate() * totalErrorWrtWeight;
-                    cout << newWeight << endl;
+                    // cout << newWeight << endl;
                 }
             }
         }
-        // we are in the Hidden Layers
+        // we are in a hidden layer
 
+        // iterate over neurons
+        for (int n = 0; n < neuralNetwork[i].size(); n++) {
+            // iterate over weights
+            for (int m = 0; m < neuralNetwork[i][n].getWeights().size(); m++) {
+                float totalErrorWrtWeight;
+                float totalErrorWrtNeuronOutput;
+                // iterate over the neurons of the layer to the right (leftmost = inputlayer, rightmost = outputlayer)
+                for (int x = 0; x < neuralNetwork[i - 1].size(); x++) {
+                    
+                }
+            }
+        }
     }
 }
 

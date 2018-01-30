@@ -152,7 +152,7 @@ void backpropagationTest() {
 
     n.forwardPropagate(inputLayer);
     neurons = n.getNetwork();
-    printNeuralNetwork(neurons);
+    // printNeuralNetwork(neurons);
 
     vector<float> trainData;
     trainData.push_back(0.01);
@@ -168,4 +168,6 @@ int main() {
     forwardPropagationCalculatesCorrectValueLogisticTest();
 
     backpropagationTest();
+    cout.flush();
+    //todo: fowardpropagation mit festen Gewichten wie in backpropagation testen (mit Tutorial-Ausgaben vergleichen)
 }
