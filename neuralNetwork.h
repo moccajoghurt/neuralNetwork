@@ -59,7 +59,7 @@ public:
         srand (static_cast <unsigned> (time(0)));
     }
     void createLayer(int neuronCount, int neuronInputsCount);
-    vector<vector<Neuron> >& forwardPropagate(vector<float> input);
+    void forwardPropagate(vector<float> input);
     void backPropagate(vector<float> trainingValues);
     float derivateSimplifiedSigmoidFunc(float value);
     float derivateLogisticFunc(float value);

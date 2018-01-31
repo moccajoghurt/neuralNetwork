@@ -55,13 +55,11 @@ float Neuron::logisticFunc(float val) {
 
 // for testing
 void Neuron::setWeights(vector<float> weightsParam) {
-    if (weightsParam.size() != weights.size()) {
+    if (weightsParam.size() != weights.size() && weights.size() != 0) {
         cout << "Neuron::setWeights(): inputNum != weightNum" << endl;
         exit(1);
     }
-    for (int i = 0; i < weightsParam.size(); i++) {
-        weights[i] = weightsParam[i];
-    }
+    weights = weightsParam;
 }
 
 /////////////////////////////////////////// class Network
@@ -74,12 +72,12 @@ void Network::createLayer(int neuronCount, int neuronInputsCount) {
     }
     neuralNetwork.push_back(neuronLayer);
 }
-vector<vector<Neuron> >& Network::forwardPropagate(vector<float> input) {
+void Network::forwardPropagate(vector<float> input) {
     if (input.size() % neuralNetwork[0].size() != 0) {
         cout << "The number of input values must be a multiple of the nodes in the input layer." << endl;
         exit(1);
     }
-    vector<vector<Neuron> > updatedNeurons;
+    vector<vector<Neuron> > updatedNetwork;
     vector<vector<float> > layerResults;
     int layerCount = 0;
     for (int i = 0; i < neuralNetwork.size(); i++) {
@@ -90,7 +88,7 @@ vector<vector<Neuron> >& Network::forwardPropagate(vector<float> input) {
                 neuronResults.push_back(neuralNetwork[0][n].getOutput(input));
             }
             layerResults.push_back(neuronResults);
-            updatedNeurons.push_back(neuralNetwork[i]);
+            updatedNetwork.push_back(neuralNetwork[i]);
             layerCount++;
             continue;
         }
@@ -102,11 +100,10 @@ vector<vector<Neuron> >& Network::forwardPropagate(vector<float> input) {
             neuronResults.push_back(neuronOutput);
         }
         layerResults.push_back(neuronResults);
-        updatedNeurons.push_back(neuralNetwork[i]);
+        updatedNetwork.push_back(neuralNetwork[i]);
         layerCount++;
     }
-    neuralNetwork = updatedNeurons;
-    return neuralNetwork;
+    neuralNetwork = updatedNetwork;
 }
 
 float Network::derivateSimplifiedSigmoidFunc(float value) {
@@ -125,10 +122,15 @@ void Network::backPropagate(vector<float> trainingValues) {
         cout << "error: Training data must have the same number of values as the neurons in the output layer." << endl;
         exit(1);
     }
+
+    vector<vector<Neuron> > updatedNetwork;
+
     vector<float> totalErrorWrtOutputs;
     vector<float> outputWrtTotalNetInputs;
     // iterate over layers
     for (int i = neuralNetwork.size() - 1; i >= 0; i--) {
+        vector<Neuron> newNeurons;
+
         vector<float> totalErrorWrtOutputsBuf;
         vector<float> outputWrtTotalNetInputsBuf;
         if (i == neuralNetwork.size() - 1) {
@@ -137,27 +139,31 @@ void Network::backPropagate(vector<float> trainingValues) {
             // calculate the total error
             for (int n = 0; n < neuralNetwork[i].size(); n++) {
                 float deltaSum = trainingValues[n] - neuralNetwork[i][n].getLastCalculatedOutput();
-                //float deltaOutputSum = derivateSigmoidFunc(neuralNetwork[i][n].getLastSum()) * deltaSum;
                 float localError = (0.5 * deltaSum) * (0.5 * deltaSum);
                 totalError += localError;
             }
             //iterate over neurons
             for (int n = 0; n < neuralNetwork[i].size(); n++) {
+                Neuron newNeuron;
+
                 vector<float> lastInputs = neuralNetwork[i][n].getLastInput();
                 float totalErrorWrtOutput = -(trainingValues[n] - neuralNetwork[i][n].getLastCalculatedOutput()); // Wrt = with respect to
                 float outputWrtTotalNetInput = derivateLogisticFunc(neuralNetwork[i][n].getLastCalculatedOutput());
-                // cout << totalErrorWrtOutput << " " << outputWrtTotalNetInput << endl;
                 totalErrorWrtOutputsBuf.push_back(totalErrorWrtOutput);
                 outputWrtTotalNetInputsBuf.push_back(outputWrtTotalNetInput);
                 vector<float> neuronWeights = neuralNetwork[i][n].getWeights();
                 // iterate over weights
+                vector<float> newWeights;
                 for (int x = 0; x < neuronWeights.size(); x++) {
                     float totalErrorWrtWeight = totalErrorWrtOutput * outputWrtTotalNetInput * lastInputs[x];
                     float newWeight = neuronWeights[x] - neuralNetwork[i][n].getLearningRate() * totalErrorWrtWeight;
-                    // cout << newWeight << endl;
-                    // to do: put weights in vector and update neural network
+                    newWeights.push_back(newWeight);
                 }
+                newNeuron.setWeights(newWeights);
+                newNeurons.push_back(newNeuron);
             }
+            vector<vector<Neuron> >::iterator it = updatedNetwork.begin();
+            updatedNetwork.insert(it, newNeurons);
             totalErrorWrtOutputs = totalErrorWrtOutputsBuf;
             outputWrtTotalNetInputs = outputWrtTotalNetInputsBuf;
             continue;
@@ -166,6 +172,8 @@ void Network::backPropagate(vector<float> trainingValues) {
 
         // iterate over neurons
         for (int n = 0; n < neuralNetwork[i].size(); n++) {
+            Neuron newNeuron;
+
             float totalErrorWrtHiddenOutput = 0;
             // iterate over the neurons of the layer to the right (leftmost = inputlayer, rightmost = outputlayer)
             for (int x = 0; x < neuralNetwork[i + 1].size(); x++) {
@@ -174,21 +182,27 @@ void Network::backPropagate(vector<float> trainingValues) {
                 float errorOutputWrtHiddenNeuronOutput = netOutputWrtHiddenNeuronOutput * errorOutputWrtNetOutput;
                 totalErrorWrtHiddenOutput += errorOutputWrtHiddenNeuronOutput;
             }
-            // cout << totalErrorWrtHiddenOutput << endl;
             float lastCalcBuf = neuralNetwork[i][n].getLastCalculatedOutput();
             float hiddenOutputWrtHiddenNet = lastCalcBuf * (1 - lastCalcBuf);
             totalErrorWrtOutputsBuf.push_back(totalErrorWrtHiddenOutput);
             outputWrtTotalNetInputsBuf.push_back(hiddenOutputWrtHiddenNet);
+            // iterate over weights
+            vector<float> newWeights;
             for (int y = 0; y < neuralNetwork[i][n].getWeights().size(); y++) {
                 float hiddenNetWrtWeight = neuralNetwork[i][n].getLastInput()[y];
                 float totalErrorWrtWeight = totalErrorWrtHiddenOutput * hiddenOutputWrtHiddenNet * hiddenNetWrtWeight;
                 float newWeight = neuralNetwork[i][n].getWeights()[y] - neuralNetwork[i][n].getLearningRate() * totalErrorWrtWeight;
-                // cout << newWeight << endl;
+                newWeights.push_back(newWeight);
             }
+            newNeuron.setWeights(newWeights);
+            newNeurons.push_back(newNeuron);
         }
+        vector<vector<Neuron> >::iterator it = updatedNetwork.begin();
+        updatedNetwork.insert(it, newNeurons);
         totalErrorWrtOutputs = totalErrorWrtOutputsBuf;
         outputWrtTotalNetInputs = outputWrtTotalNetInputsBuf;
     }
+    neuralNetwork = updatedNetwork;
 }
 
 // purely for testing
