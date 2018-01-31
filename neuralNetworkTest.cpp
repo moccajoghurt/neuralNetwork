@@ -156,12 +156,9 @@ void backpropagationCalculatesCorrectValueTest() {
 
     weightsLayer2.push_back(testWeightsNeuron1_2);
     weightsLayer2.push_back(testWeightsNeuron2_2);
-
     n.setWeights(0, weightsLayer1);
     n.setWeights(1, weightsLayer2);
-
     vector<vector<Neuron> >& neurons = n.getNetwork();
-    
     vector<float> inputLayer;
     inputLayer.push_back(0.05);
     inputLayer.push_back(0.1);
@@ -171,20 +168,28 @@ void backpropagationCalculatesCorrectValueTest() {
     neurons[1][0].setBiasWeight(0.6);
     neurons[1][1].setBiasWeight(0.6);
 
-    
-
     vector<float> trainData;
     trainData.push_back(0.01);
     trainData.push_back(0.99);
-    
-    
     n.forwardPropagate(inputLayer);
     n.backPropagate(trainData);
-    printNeuralNetwork(n.getNetwork());
-    // if (abs(n.getNetwork()[0][0] == 0.149)
+
+    if (abs(neurons[0][0].getWeights()[0] - 0.149) < 0.001 &&
+        abs(neurons[0][0].getWeights()[1] - 0.199) < 0.001 &&
+        abs(neurons[0][1].getWeights()[0] - 0.249) < 0.001 &&
+        abs(neurons[0][1].getWeights()[1] - 0.299) < 0.001 &&
+        abs(neurons[1][0].getWeights()[0] - 0.358) < 0.001 &&
+        abs(neurons[1][0].getWeights()[1] - 0.408) < 0.001 &&
+        abs(neurons[1][1].getWeights()[0] - 0.511) < 0.001 &&
+        abs(neurons[1][1].getWeights()[1] - 0.561) < 0.001) {
+        cout << "backpropagationCalculatesCorrectValueTest() success" << endl;
+    } else {
+        cout << "backpropagationCalculatesCorrectValueTest() failed" << endl;
+    }
 }
 
 void backpropagationIsImprovingNetworkOutputTest() {
+    Network n;
     
 }
 
