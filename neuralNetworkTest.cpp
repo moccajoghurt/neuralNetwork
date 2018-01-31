@@ -190,14 +190,58 @@ void backpropagationCalculatesCorrectValueTest() {
 
 void backpropagationIsImprovingNetworkOutputTest() {
     Network n;
-    
+    n.createLayer(3, 3);
+    n.createLayer(3, 3);
+    n.createLayer(1, 3);
+
+    vector<float> testInput0;
+    testInput0.push_back(0);
+    testInput0.push_back(0);
+    testInput0.push_back(0);
+    vector<float> train0;
+    train0.push_back(0);
+
+    vector<float> testInput1;
+    testInput1.push_back(1);
+    testInput1.push_back(0);
+    testInput1.push_back(0);
+    vector<float> train1;
+    train1.push_back(1);
+
+    vector<float> testInput2;
+    testInput2.push_back(1);
+    testInput2.push_back(1);
+    testInput2.push_back(0);
+    vector<float> train2;
+    train2.push_back(0);
+
+    vector<float> testInput3;
+    testInput3.push_back(1);
+    testInput3.push_back(1);
+    testInput3.push_back(1);
+    vector<float> train3;
+    train3.push_back(1);
+
+    for (int i = 0; i < 2000; i++) {
+        n.forwardPropagate(testInput0);
+        n.backPropagate(train0);
+        n.forwardPropagate(testInput1);
+        n.backPropagate(train1);
+        n.forwardPropagate(testInput2);
+        n.backPropagate(train2);
+        n.forwardPropagate(testInput3);
+        n.backPropagate(train3);
+    }
+    n.forwardPropagate(testInput0);
+    printNeuralNetworkOutputs(n.getNetwork());
+
 }
 
 int main() {
     layerCreationTest();
     neuronCalculatesCorrectOutputLogisticTest();
     forwardPropagationCalculatesCorrectValueLogisticTest();
-
     backpropagationCalculatesCorrectValueTest();
+    backpropagationIsImprovingNetworkOutputTest();
     //todo: fowardpropagation mit festen Gewichten wie in backpropagation testen (mit Tutorial-Ausgaben vergleichen)
 }
