@@ -130,7 +130,7 @@ void printNeuralNetwork(vector<vector<Neuron> > network) {
     cout.flush();
 }
 
-void backpropagationTest() {
+void backpropagationCalculatesCorrectValueTest() {
     Network n;
     n.createLayer(2,2);
     n.createLayer(2,2);
@@ -178,22 +178,21 @@ void backpropagationTest() {
     trainData.push_back(0.99);
     
     
-    printNeuralNetwork(neurons);
-    for (int i = 0; i < 100; i++) { // train a weng
-        n.forwardPropagate(inputLayer);
-        n.backPropagate(trainData);
-    }
-    printNeuralNetwork(neurons);
-    printNeuralNetworkOutputs(neurons);
+    n.forwardPropagate(inputLayer);
+    n.backPropagate(trainData);
+    printNeuralNetwork(n.getNetwork());
+    // if (abs(n.getNetwork()[0][0] == 0.149)
 }
 
-
+void backpropagationIsImprovingNetworkOutputTest() {
+    
+}
 
 int main() {
     layerCreationTest();
     neuronCalculatesCorrectOutputLogisticTest();
     forwardPropagationCalculatesCorrectValueLogisticTest();
 
-    backpropagationTest();
+    backpropagationCalculatesCorrectValueTest();
     //todo: fowardpropagation mit festen Gewichten wie in backpropagation testen (mit Tutorial-Ausgaben vergleichen)
 }

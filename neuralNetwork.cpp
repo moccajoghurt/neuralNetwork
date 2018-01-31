@@ -117,6 +117,7 @@ float Network::derivateLogisticFunc(float value) {
 }
 
 // implementation is based upon this: https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
+// todo: currently the bias is not getting updated. check out if it's necessary
 void Network::backPropagate(vector<float> trainingValues) {
     if (neuralNetwork.back().size() != trainingValues.size()) {
         cout << "error: Training data must have the same number of values as the neurons in the output layer." << endl;
