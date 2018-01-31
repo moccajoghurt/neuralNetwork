@@ -63,11 +63,11 @@ public:
     void backPropagate(vector<float> trainingValues);
     float derivateSimplifiedSigmoidFunc(float value);
     float derivateLogisticFunc(float value);
+    void setWeights(int layerIndex, vector<vector<float> > weightsParam);
     /******************* FUNCTIONS FOR UNIT TESTS */
     vector<vector<Neuron> >& getNetwork() {
         return neuralNetwork;
     }
-    void setWeights(int layerIndex, vector<vector<float> > weightsParam);
     /*******************/
 private:
     vector<vector<Neuron> > neuralNetwork;

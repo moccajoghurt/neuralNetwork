@@ -206,7 +206,6 @@ void Network::backPropagate(vector<float> trainingValues) {
     neuralNetwork = updatedNetwork;
 }
 
-// purely for testing
 void Network::setWeights(int layerIndex, vector<vector<float> > weightsParam) {
     if (weightsParam.size() != neuralNetwork[layerIndex].size()) {
         cout << "Network::setWeights(): inputNum != weightNum" << endl;
