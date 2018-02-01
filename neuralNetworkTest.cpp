@@ -7,7 +7,7 @@ using namespace std;
 
 void layerCreationTest() {
     Network n;
-    n.createLayer(4);
+    n.createLayer(4, 4);
     n.createLayer(6);
     n.createLayer(8);
 
@@ -29,13 +29,13 @@ void layerCreationTest() {
     }
 }
 
-bool correctNeuronValueLogistic(Network& n, float f1, float f2) {
+bool correctNeuronValue(Network& n, float f1, float f2) {
     float weight1 = n.getNetwork()[0][0].getWeights()[0];
     float weight2 = n.getNetwork()[0][0].getWeights()[1];
     float bias = n.getNetwork()[0][0].getBias();
     float biasWeight = n.getNetwork()[0][0].getBiasWeight();
     float expectedResult = (weight1 * f1) + (weight2 * f2) + (bias * biasWeight);
-    expectedResult = 1. / (1 + exp(-expectedResult)); // apply logistic func
+    expectedResult = 1. / (1 + exp(-expectedResult)); // apply  func
     vector<float> testInput;
     testInput.push_back(f1);
     testInput.push_back(f2);
@@ -47,13 +47,13 @@ bool correctNeuronValueLogistic(Network& n, float f1, float f2) {
     }
 }
 
-void neuronCalculatesCorrectOutputLogisticTest() {
+void neuronCalculatesCorrectOutputTest() {
     Network n;
     n.createLayer(1, 2);
     for (int i = 0; i < 1000; i++) {
         float rand1 = static_cast<float>(rand());
         float rand2 = static_cast<float>(rand());
-        if (!correctNeuronValueLogistic(n, -rand1, rand2)) {
+        if (!correctNeuronValue(n, -rand1, rand2)) {
             cout << "neuronCalculatesCorrectOutputTest() failed" << endl;
             return;
         }
@@ -61,7 +61,7 @@ void neuronCalculatesCorrectOutputLogisticTest() {
     cout << "neuronCalculatesCorrectOutputTest() success" << endl;
 }
 
-void forwardPropagationCalculatesCorrectValueLogisticTest() {
+void forwardPropagationCalculatesCorrectValueTest() {
     Network n;
     n.createLayer(2, 4);
     n.createLayer(2);
@@ -133,7 +133,7 @@ void printNeuralNetwork(vector<vector<Neuron> > network) {
 
 void backpropagationCalculatesCorrectValueTest() {
     Network n;
-    n.createLayer(2);
+    n.createLayer(2, 2);
     n.createLayer(2);
 
     vector<vector<float> > weightsLayer1;
@@ -189,10 +189,10 @@ void backpropagationCalculatesCorrectValueTest() {
     }
 }
 
-void backpropagationIsImprovingNetworkOutputTest() {
+void backpropagationImprovesNetworkOutputTest() {
+    Network n;
     int layerNum = rand() % 10 + 1;
     int inputValueCount = rand() % 1000 + 1;
-    Network n;
     n.createLayer(rand() % 50, inputValueCount); // the first layer must define the number of inputs
     for (int i = 0; i < layerNum; i++) {
         int neuronNum = rand() % 50;
@@ -200,26 +200,84 @@ void backpropagationIsImprovingNetworkOutputTest() {
     }
     vector<float> inputValues;
     for (int i = 0; i < inputValueCount; i++) {
-        float randInput = static_cast<float>(rand());
+        float randInput = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
         inputValues.push_back(randInput);
     }
     vector<float> trainValues;
     int networkSize = n.getNetwork().size();
     for (int i = 0; i < n.getNetwork()[networkSize-1].size(); i++) {
-        float randInput = static_cast<float>(rand());
+        float randInput = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
         trainValues.push_back(randInput);
     }
 
     vector<float> untrainedOutput = n.forwardPropagate(inputValues);
-    n.backPropagate(trainValues);
+    for (int i = 0; i < 1; i++) {
+        n.backPropagate(trainValues);
+        n.forwardPropagate(inputValues);
+    }
     vector<float> trainedOutput = n.forwardPropagate(inputValues);
+    bool improved = false;
     for (int i = 0; i < untrainedOutput.size(); i++) {
-        if (abs(trainValues[i] - untrainedOutput[i]) < abs(trainValues[i] - trainedOutput[i])) {
-            cout << "backpropagationIsImprovingNetworkOutputTest() failed" << endl;
+        if (abs(trainValues[i] - untrainedOutput[i]) > abs(trainValues[i] - trainedOutput[i])) {
+            improved = true;
+        }
+    }
+    if (improved) {
+        cout << "backpropagationIsImprovingNetworkOutputTest() success" << endl;
+    } else {
+        cout << "backpropagationIsImprovingNetworkOutputTest() failed" << endl;
+    }
+    
+}
+
+void backpropagationUpdatesEachLayerTest() {
+    Network n;
+    int layerNum = (rand() % 10) + 1;
+    int inputValueCount = rand() % 1000 + 1; inputValueCount = layerNum;
+    n.createLayer(5/*rand() % 15*/, inputValueCount); // the first layer must define the number of inputs
+    for (int i = 0; i < layerNum; i++) {
+        int neuronNum = rand() % 15; neuronNum = 5;
+        n.createLayer(neuronNum);
+    }
+    vector<float> inputValues;
+    for (int i = 0; i < inputValueCount; i++) {
+        float randInput = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        inputValues.push_back(randInput);
+    }
+    vector<float> trainValues;
+    int networkSize = n.getNetwork().size();
+    for (int i = 0; i < n.getNetwork()[networkSize-1].size(); i++) {
+        float randInput = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        trainValues.push_back(randInput);
+    }
+    vector<vector<Neuron> > oldNetwork;
+    for (vector<Neuron> neurons : n.getNetwork()) {
+        oldNetwork.push_back(neurons);
+    }
+    for (int i = 0; i < 1; i++) {
+        n.forwardPropagate(inputValues);
+        n.backPropagate(trainValues);
+    }
+    vector<vector<Neuron> > newNetwork = n.getNetwork();
+    //iterate over layers
+    for (int i = 0; i < oldNetwork.size(); i++) {
+        bool layerGotUpdated = false;
+        // iterate over neurons
+        for (int n = 0; n < oldNetwork[i].size(); n++) {
+            // iterate over weights
+            for (int m = 0; m < oldNetwork[i][n].getWeightCount(); m++) {
+                if (oldNetwork[i][n].getWeights()[m] != newNetwork[i][n].getWeights()[m]) {
+                    layerGotUpdated = true;
+                }
+            }
+        }
+        if (!layerGotUpdated) {
+            cout << "backpropagationUpdatesAllWeightsTest() failed ";
+            cout << "Layer_" << i << " didn't get updated" << endl;
             return;
         }
     }
-    cout << "backpropagationIsImprovingNetworkOutputTest() success" << endl;
+    cout << "backpropagationUpdatesAllWeightsTest() success" << endl;
 }
 
 void backpropagationPlayfield() {
@@ -272,9 +330,11 @@ void backpropagationPlayfield() {
 
 int main() {
     layerCreationTest();
-    neuronCalculatesCorrectOutputLogisticTest();
-    forwardPropagationCalculatesCorrectValueLogisticTest();
+    neuronCalculatesCorrectOutputTest();
+    forwardPropagationCalculatesCorrectValueTest();
     backpropagationCalculatesCorrectValueTest();
-    backpropagationIsImprovingNetworkOutputTest();
+    backpropagationImprovesNetworkOutputTest();
+    backpropagationUpdatesEachLayerTest();
+    cout.flush();
     //todo: fowardpropagation mit festen Gewichten wie in backpropagation testen (mit Tutorial-Ausgaben vergleichen)
 }

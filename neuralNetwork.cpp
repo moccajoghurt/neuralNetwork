@@ -65,10 +65,11 @@ void Neuron::setWeights(vector<float> weightsParam) {
 void Network::createLayer(int neuronCount, int neuronInputsCount) {
     
     if (neuronInputsCount < 0 && neuralNetwork.size() == 0) {
-        neuronInputsCount = neuronCount;
+        cout << "The first layer must define the number of inputs!" << endl;
+        exit(1);
     } else if (neuronInputsCount < 0) {
         neuronInputsCount = neuralNetwork[neuralNetwork.size() - 1].size();
-    } else if (neuronInputsCount == -1 && neuralNetwork.size() != 0) {
+    } else if (neuronInputsCount > 0 && neuralNetwork.size() != 0) {
         cout << "The neural network is fully connected, so only the first layer can have a manual neuron-input-size." << endl;
         exit(1);
     }
@@ -86,19 +87,19 @@ vector<float> Network::forwardPropagate(vector<float> input) {
     vector<vector<float> > layerResults;
     int layerCount = 0;
     for (int i = 0; i < neuralNetwork.size(); i++) {
+        int neuronCount = neuralNetwork[i].size();
         if (i == 0) {
             // we are in the first layer
-            int neuronCount = neuralNetwork[0].size();
             vector<float> neuronResults;
             for (int n = 0; n < neuronCount; n++) {
-                neuronResults.push_back(neuralNetwork[0][n].getOutput(input));
+                neuronResults.push_back(neuralNetwork[i][n].getOutput(input));
             }
             layerResults.push_back(neuronResults);
             updatedNetwork.push_back(neuralNetwork[i]);
             layerCount++;
             continue;
         }
-        int neuronCount = neuralNetwork[i].size();
+        
         vector<float> neuronResults;
         for (int n = 0; n < neuronCount; n++) {
             // It's a fully connected Network, so feed each Neuron with all results of the previous layer
@@ -200,6 +201,12 @@ void Network::backPropagate(vector<float> trainingValues) {
                 float hiddenNetWrtWeight = neuralNetwork[i][n].getLastInput()[y];
                 float totalErrorWrtWeight = totalErrorWrtHiddenOutput * hiddenOutputWrtHiddenNet * hiddenNetWrtWeight;
                 float newWeight = neuralNetwork[i][n].getWeights()[y] - neuralNetwork[i][n].getLearningRate() * totalErrorWrtWeight;
+                if (i == 0) {
+                    // cout << neuralNetwork[i][n].getLearningRate() << " " << totalErrorWrtWeight << endl;
+                    // cout << totalErrorWrtHiddenOutput << " " << hiddenOutputWrtHiddenNet << " " << hiddenNetWrtWeight << endl;
+                    // cout << lastCalcBuf << " ";
+                    // cout << neuralNetwork[i][n].getWeights()[y] << " " << newWeight << endl;
+                }
                 newWeights.push_back(newWeight);
             }
             newNeuron.setWeights(newWeights);
