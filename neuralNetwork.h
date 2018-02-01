@@ -58,7 +58,7 @@ public:
     Network() {
         srand (static_cast <unsigned> (time(0)));
     }
-    void createLayer(int neuronCount, int neuronInputsCount);
+    void createLayer(int neuronCount, int neuronInputsCount = -1);
     void forwardPropagate(vector<float> input);
     void backPropagate(vector<float> trainingValues);
     float derivateSimplifiedSigmoidFunc(float value);

@@ -53,7 +53,6 @@ float Neuron::logisticFunc(float val) {
     return buf;
 }
 
-// for testing
 void Neuron::setWeights(vector<float> weightsParam) {
     if (weightsParam.size() != weights.size() && weights.size() != 0) {
         cout << "Neuron::setWeights(): inputNum != weightNum" << endl;
@@ -64,6 +63,16 @@ void Neuron::setWeights(vector<float> weightsParam) {
 
 /////////////////////////////////////////// class Network
 void Network::createLayer(int neuronCount, int neuronInputsCount) {
+    
+    if (neuronInputsCount == -1 && neuralNetwork.size() == 0) {
+        neuronInputsCount = neuronCount;
+    } else if (neuronInputsCount == -1) {
+        neuronInputsCount = neuralNetwork[neuralNetwork.size() - 1].size();
+    } else if (neuronInputsCount == -1 && neuralNetwork.size() != 0) {
+        cout << "The neural network is fully connected, so only the first layer can have a manual neuron-input-size." << endl;
+        exit(1);
+    }
+
     vector<Neuron> neuronLayer;
     for (int i = 0; i < neuronCount; i++) {
         Neuron n;

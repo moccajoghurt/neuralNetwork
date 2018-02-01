@@ -7,14 +7,14 @@ using namespace std;
 
 void layerCreationTest() {
     Network n;
-    n.createLayer(4, 5);
-    n.createLayer(6, 7);
-    n.createLayer(8, 9);
+    n.createLayer(4);
+    n.createLayer(6);
+    n.createLayer(8);
 
     if (n.getNetwork().size() != 3) {
         cout << "layerCreationTest() failed: incorrect layer count" << endl;
     }
-    int expectedWeightCount = 4*5 + 6*7 + 8*9;
+    int expectedWeightCount = 4*4 + 6*4 + 8*6;
     int weightCount = 0;
     for (vector<Neuron> l : n.getNetwork()) {
         for (Neuron n : l) {
@@ -22,6 +22,7 @@ void layerCreationTest() {
         }
     }
     if (weightCount != expectedWeightCount) {
+        cout << weightCount << " " << 4*4 + 6*4 + 8*6 << endl;
         cout << "layerCreationTest() failed: incorrect weight count" << endl;
     } else {
         cout << "layerCreationTest() success" << endl;
@@ -63,7 +64,7 @@ void neuronCalculatesCorrectOutputLogisticTest() {
 void forwardPropagationCalculatesCorrectValueLogisticTest() {
     Network n;
     n.createLayer(2, 4);
-    n.createLayer(2, 2);
+    n.createLayer(2);
 
     vector<float> testInput;
     testInput.push_back(1.3);
@@ -132,8 +133,8 @@ void printNeuralNetwork(vector<vector<Neuron> > network) {
 
 void backpropagationCalculatesCorrectValueTest() {
     Network n;
-    n.createLayer(2,2);
-    n.createLayer(2,2);
+    n.createLayer(2);
+    n.createLayer(2);
 
     vector<vector<float> > weightsLayer1;
     vector<float> testWeightsNeuron1;
@@ -189,10 +190,15 @@ void backpropagationCalculatesCorrectValueTest() {
 }
 
 void backpropagationIsImprovingNetworkOutputTest() {
+    int layerNum = rand() % 10 + 1;
+    // Network n;
+    for (int i = 0; i < layerNum; i++) {
+        // int 
+    }
     Network n;
-    n.createLayer(3, 3);
-    n.createLayer(3, 3);
-    n.createLayer(1, 3);
+    n.createLayer(3);
+    n.createLayer(3);
+    n.createLayer(1);
 
     vector<float> testInput0;
     testInput0.push_back(0);
