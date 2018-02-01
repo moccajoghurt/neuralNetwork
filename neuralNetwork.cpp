@@ -64,9 +64,9 @@ void Neuron::setWeights(vector<float> weightsParam) {
 /////////////////////////////////////////// class Network
 void Network::createLayer(int neuronCount, int neuronInputsCount) {
     
-    if (neuronInputsCount == -1 && neuralNetwork.size() == 0) {
+    if (neuronInputsCount < 0 && neuralNetwork.size() == 0) {
         neuronInputsCount = neuronCount;
-    } else if (neuronInputsCount == -1) {
+    } else if (neuronInputsCount < 0) {
         neuronInputsCount = neuralNetwork[neuralNetwork.size() - 1].size();
     } else if (neuronInputsCount == -1 && neuralNetwork.size() != 0) {
         cout << "The neural network is fully connected, so only the first layer can have a manual neuron-input-size." << endl;
@@ -81,16 +81,13 @@ void Network::createLayer(int neuronCount, int neuronInputsCount) {
     }
     neuralNetwork.push_back(neuronLayer);
 }
-void Network::forwardPropagate(vector<float> input) {
-    if (input.size() % neuralNetwork[0].size() != 0) {
-        cout << "The number of input values must be a multiple of the nodes in the input layer." << endl;
-        exit(1);
-    }
+vector<float> Network::forwardPropagate(vector<float> input) {
     vector<vector<Neuron> > updatedNetwork;
     vector<vector<float> > layerResults;
     int layerCount = 0;
     for (int i = 0; i < neuralNetwork.size(); i++) {
         if (i == 0) {
+            // we are in the first layer
             int neuronCount = neuralNetwork[0].size();
             vector<float> neuronResults;
             for (int n = 0; n < neuronCount; n++) {
@@ -113,6 +110,7 @@ void Network::forwardPropagate(vector<float> input) {
         layerCount++;
     }
     neuralNetwork = updatedNetwork;
+    return layerResults[layerResults.size() - 1];
 }
 
 float Network::derivateSimplifiedSigmoidFunc(float value) {

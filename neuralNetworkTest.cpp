@@ -191,10 +191,38 @@ void backpropagationCalculatesCorrectValueTest() {
 
 void backpropagationIsImprovingNetworkOutputTest() {
     int layerNum = rand() % 10 + 1;
-    // Network n;
+    int inputValueCount = rand() % 1000 + 1;
+    Network n;
+    n.createLayer(rand() % 50, inputValueCount); // the first layer must define the number of inputs
     for (int i = 0; i < layerNum; i++) {
-        // int 
+        int neuronNum = rand() % 50;
+        n.createLayer(neuronNum);
     }
+    vector<float> inputValues;
+    for (int i = 0; i < inputValueCount; i++) {
+        float randInput = static_cast<float>(rand());
+        inputValues.push_back(randInput);
+    }
+    vector<float> trainValues;
+    int networkSize = n.getNetwork().size();
+    for (int i = 0; i < n.getNetwork()[networkSize-1].size(); i++) {
+        float randInput = static_cast<float>(rand());
+        trainValues.push_back(randInput);
+    }
+
+    vector<float> untrainedOutput = n.forwardPropagate(inputValues);
+    n.backPropagate(trainValues);
+    vector<float> trainedOutput = n.forwardPropagate(inputValues);
+    for (int i = 0; i < untrainedOutput.size(); i++) {
+        if (abs(trainValues[i] - untrainedOutput[i]) < abs(trainValues[i] - trainedOutput[i])) {
+            cout << "backpropagationIsImprovingNetworkOutputTest() failed" << endl;
+            return;
+        }
+    }
+    cout << "backpropagationIsImprovingNetworkOutputTest() success" << endl;
+}
+
+void backpropagationPlayfield() {
     Network n;
     n.createLayer(3);
     n.createLayer(3);
@@ -240,7 +268,6 @@ void backpropagationIsImprovingNetworkOutputTest() {
     }
     n.forwardPropagate(testInput0);
     printNeuralNetworkOutputs(n.getNetwork());
-
 }
 
 int main() {
