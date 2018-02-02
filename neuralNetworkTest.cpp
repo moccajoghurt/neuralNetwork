@@ -334,50 +334,70 @@ void backpropagationUpdatesEachLayerTest() {
 
 void backpropagationPlayfield() {
     Network n;
-    n.createLayer(3);
-    n.createLayer(3);
-    n.createLayer(1);
-
-    vector<float> testInput0;
-    testInput0.push_back(0);
-    testInput0.push_back(0);
-    testInput0.push_back(0);
-    vector<float> train0;
-    train0.push_back(0);
-
-    vector<float> testInput1;
-    testInput1.push_back(1);
-    testInput1.push_back(0);
-    testInput1.push_back(0);
-    vector<float> train1;
-    train1.push_back(1);
-
-    vector<float> testInput2;
-    testInput2.push_back(1);
-    testInput2.push_back(1);
-    testInput2.push_back(0);
-    vector<float> train2;
-    train2.push_back(0);
-
-    vector<float> testInput3;
-    testInput3.push_back(1);
-    testInput3.push_back(1);
-    testInput3.push_back(1);
-    vector<float> train3;
-    train3.push_back(1);
-
-    for (int i = 0; i < 2000; i++) {
-        n.forwardPropagate(testInput0);
-        n.backPropagate(train0);
-        n.forwardPropagate(testInput1);
-        n.backPropagate(train1);
-        n.forwardPropagate(testInput2);
-        n.backPropagate(train2);
-        n.forwardPropagate(testInput3);
-        n.backPropagate(train3);
+    int layerNum = rand() % 1 + 1;
+    int inputValueCount = rand() % 1000 + 1;
+    n.createLayer(rand() % 15, inputValueCount); // the first layer must define the number of inputs
+    for (int i = 0; i < layerNum; i++) {
+        int neuronNum = rand() % 15;
+        n.createLayer(neuronNum);
     }
-    n.forwardPropagate(testInput0);
-    printNeuralNetworkOutputs(n.getNetwork());
+
+    int differentTrainDataCount = 20;
+    vector<vector<float> > inputLayers;
+    for (int n = 0; n < differentTrainDataCount; n++) {
+        vector<float> inputValues;
+        for (int i = 0; i < inputValueCount; i++) {
+            float randInput = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * 2 - 1;
+            inputValues.push_back(randInput);
+        }
+        inputLayers.push_back(inputValues);
+    }
+    
+    vector<vector<float> > trainVector;
+    for (int m = 0; m < differentTrainDataCount; m++) {
+        vector<float> inputValues;
+        for (int i = 0; i < n.getNetwork().size()-1; i++) {
+            float randInput = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * 2 - 1;
+            inputValues.push_back(randInput);
+        }
+        trainVector.push_back(inputValues);
+    }
+
+    vector<vector<Neuron> > oldNetwork;
+    for (int i = 0; i < n.getNetwork().size(); i++) {
+        oldNetwork.push_back(n.getNetwork()[i]);
+    }
+    
+    for (int i = 0; i < 10; i++) {
+        for (int m = 0; m < 20; m++) {
+            n.forwardPropagate(inputLayers[m]);
+            n.backPropagate(trainVector[m]);
+        }
+    }
+    vector<vector<Neuron> > newNetwork = n.getNetwork();
+    //iterate over layers
+    bool allLayersGotUpdated = true;
+    for (int i = 0; i < oldNetwork.size(); i++) {
+        bool layerGotUpdated = false;
+        // iterate over neurons
+        for (int n = 0; n < oldNetwork[i].size(); n++) {
+            // iterate over weights
+            for (int m = 0; m < oldNetwork[i][n].getWeightCount(); m++) {
+                if (oldNetwork[i][n].getWeights()[m] != newNetwork[i][n].getWeights()[m]) {
+                    layerGotUpdated = true;
+                }
+            }
+        }
+        if (!layerGotUpdated) {
+            // cout << "Layer_" << i << " (of " << n.getNetwork().size() << ") didn't get updated" << endl;
+            allLayersGotUpdated = false;
+        }
+    }
+    if (!allLayersGotUpdated) {
+        cout << "backpropagationPlayfield() failed" << endl;
+    } else {
+        cout << "backpropagationPlayfield() success" << endl;
+    }
 }
 
 int main() {
@@ -387,5 +407,6 @@ int main() {
     backpropagationCalculatesCorrectValueTest();
     backpropagationImprovesNetworkOutputTest();
     backpropagationUpdatesEachLayerTest();
+    backpropagationPlayfield();
     //todo: fowardpropagation mit festen Gewichten wie in backpropagation testen (mit Tutorial-Ausgaben vergleichen)
 }
