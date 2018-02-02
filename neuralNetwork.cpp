@@ -192,7 +192,8 @@ void Network::backPropagate(vector<float> trainingValues) {
                 totalErrorWrtHiddenOutput += errorOutputWrtHiddenNeuronOutput;
             }
             float lastCalcBuf = neuralNetwork[i][n].getLastCalculatedOutput();
-            float hiddenOutputWrtHiddenNet = lastCalcBuf * (1 - lastCalcBuf);
+            float hiddenOutputWrtHiddenNet = lastCalcBuf * (1 - lastCalcBuf); // if lastCalcBuf is 1 (which happens of the input to the neurons is too high, the new weight will be multiplied by 0)
+            hiddenOutputWrtHiddenNet = hiddenOutputWrtHiddenNet == 0 ? 0.00001 : hiddenOutputWrtHiddenNet;
             totalErrorWrtOutputsBuf.push_back(totalErrorWrtHiddenOutput);
             outputWrtTotalNetInputsBuf.push_back(hiddenOutputWrtHiddenNet);
             // iterate over weights
@@ -201,12 +202,6 @@ void Network::backPropagate(vector<float> trainingValues) {
                 float hiddenNetWrtWeight = neuralNetwork[i][n].getLastInput()[y];
                 float totalErrorWrtWeight = totalErrorWrtHiddenOutput * hiddenOutputWrtHiddenNet * hiddenNetWrtWeight;
                 float newWeight = neuralNetwork[i][n].getWeights()[y] - neuralNetwork[i][n].getLearningRate() * totalErrorWrtWeight;
-                if (i == 0) {
-                    // cout << neuralNetwork[i][n].getLearningRate() << " " << totalErrorWrtWeight << endl;
-                    // cout << totalErrorWrtHiddenOutput << " " << hiddenOutputWrtHiddenNet << " " << hiddenNetWrtWeight << endl;
-                    // cout << lastCalcBuf << " ";
-                    // cout << neuralNetwork[i][n].getWeights()[y] << " " << newWeight << endl;
-                }
                 newWeights.push_back(newWeight);
             }
             newNeuron.setWeights(newWeights);
