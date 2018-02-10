@@ -32,6 +32,12 @@ typedef struct FilterMatrixTypes {
         {-1, -1, -1}
     };
 
+    int identityFilterMatrix[3][3] = {
+        {0, 0, 0},
+        {0, 1, 0},
+        {0, 0, 0}
+    };
+
 } FilterMatrixTypes;
 
 class FilterMatrix {
@@ -40,9 +46,17 @@ private:
     Size filterMatrixSize;
 };
 
+class FeatureMap {
+
+private:
+    int** featureMap;
+};
+
 class Convolution {
 public:
     Convolution();
+
+    
 
 private:
     string imgFolderPath;
