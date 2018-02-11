@@ -1,58 +1,113 @@
+#ifndef _CONVOLUTION_H_
+#define _CONVOLUTION_H_
+
 #include <string>
+#include <vector>
+
 using namespace std;
 
-typedef struct Size {
-    int width;
-    int height;
-} size;
+typedef unsigned char uchar_t;
+typedef unsigned int uint_t;
 
-enum FilterType {
-    SHARPEN_FILTER,
-    EDGE_FILTER0,
-    EDGE_FILTER1,
-    EDGE_FILTER2,
-    EMBOSS_FILTER,
-    IDENTITY
+typedef struct Size {
+    uint_t width;
+    uint_t height;
+} Size;
+
+typedef struct RGBPixel {
+    uchar_t r;
+    uchar_t g;
+    uchar_t b;
+} RGBPixel;
+
+typedef struct GreyPixel {
+    uchar_t p;
+} GreyPixel;
+
+
+class FeatureMapImage {
+public:
+    Size& getSize() {
+        return size;
+    }
+    bool hasColors() {
+        return coloredImage;
+    }
+    void setRGBFeatureMap(vector<vector<RGBPixel> > RGBFm) {
+        RGBFeatureMap = RGBFm;
+    }
+    void setGreyscaleFeatureMap(vector<vector<GreyPixel> > GreyscaleFm) {
+        GreyscaleFeatureMap = GreyscaleFm;
+    }
+    void setHasColors(bool b) {
+        coloredImage = b;
+    }
+    void setSize(Size s) {
+        size = s;
+    }
+    vector<vector<RGBPixel> >& getRGBFeatureMap() {
+        return RGBFeatureMap;
+    }
+    vector<vector<GreyPixel> >& getGreyscaleFeatureMap() {
+        return GreyscaleFeatureMap;
+    }
+private:
+    vector<vector<RGBPixel> > RGBFeatureMap;
+    vector<vector<GreyPixel> > GreyscaleFeatureMap;
+    bool coloredImage;
+    Size size;
 };
 
 
 class FilterMatrix {
 public:
-    int** applyFilter(FilterType type) {
-
-    }
+    FeatureMapImage& applyFilter(FeatureMapImage&, FilterMatrix);
 private:
     Size filterMatrixSize;
-    int sharpenFilterMatrix[3][3] = {
+    int filterMatrix[3][3];
+};
+
+class SharpenFilterMatrix : FilterMatrix {
+    int filterMatrix[3][3] = {
         {0, -1, 0},
         {-1, 5, -1},
         {0, -1, 0}
     };
+};
 
-    int edgeFilterMatrix0[3][3] = {
+class Edge0FilterMatrix : FilterMatrix {
+    int filterMatrix[3][3] = {
         {1, 0, -1},
         {0, 0, 0},
         {-1, 0, 1}
     };
+};
 
-    int edgeFilterMatrix1[3][3] = {
+class Edge1FilterMatrix : FilterMatrix {
+    int filterMatrix[3][3] = {
         {0, 1, 0},
         {1, -4, 1},
         {0, 1, 0}
     };
+};
 
-    int edgeFilterMatrix2[3][3] = {
+class Edge2FilterMatrix : FilterMatrix {
+    int filterMatrix[3][3] = {
         {-1, -1, -1},
         {-1, 8, -1},
         {-1, -1, -1}
     };
+};
 
-    int embossFilterMatrix[3][3] = {
+class EmbossFilterMatrix : FilterMatrix {
+    int filterMatrix[3][3] = {
         {-2, -1, 0},
         {-1, 1, 1},
         {0, 1, 2}
     };
+};
 
+class IdentityFilterMatrix : FilterMatrix {
     int identityFilterMatrix[3][3] = {
         {0, 0, 0},
         {0, 1, 0},
@@ -60,22 +115,16 @@ private:
     };
 };
 
-class FeatureMap {
-public:
-    Size getSize();
-private:
-    int** featureMap;
-};
-
 class Convolution {
 public:
-    // TODO: use CImg-Library for image import
     Convolution();
 
-    FeatureMap convolute(Size targetSize = {0, 0}, int stepSize = 1);
+    FeatureMapImage& convolute(Size targetSize = {0, 0}, int stepSize = 1);
 
 private:
     string imgFolderPath;
     Size featureMapSize;
     
 };
+
+#endif // _CONVOLUTION_H_
