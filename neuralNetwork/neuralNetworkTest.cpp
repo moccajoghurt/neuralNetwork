@@ -210,12 +210,13 @@ bool backpropagationImprovesNetworkOutputTestProc() {
         trainValues.push_back(randInput);
     }
 
-    vector<float> untrainedOutput = n.forwardPropagate(inputValues);
+    n.forwardPropagate(inputValues);
+    vector<float> untrainedOutput = n.getOutputLayerResults();
     for (int i = 0; i < 10; i++) {
         n.backPropagate(trainValues);
         n.forwardPropagate(inputValues);
     }
-    vector<float> trainedOutput = n.forwardPropagate(inputValues);
+    vector<float> trainedOutput = n.getOutputLayerResults();
     bool improved = false;
     for (int i = 0; i < untrainedOutput.size(); i++) {
         if (abs(trainValues[i] - untrainedOutput[i]) > abs(trainValues[i] - trainedOutput[i])) {
@@ -407,6 +408,6 @@ int main() {
     backpropagationCalculatesCorrectValueTest();
     backpropagationImprovesNetworkOutputTest();
     backpropagationUpdatesEachLayerTest();
-    backpropagationPlayfield();
+    // backpropagationPlayfield();
     //todo: fowardpropagation mit festen Gewichten wie in backpropagation testen (mit Tutorial-Ausgaben vergleichen)
 }

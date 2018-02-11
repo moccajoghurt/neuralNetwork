@@ -82,7 +82,7 @@ void Network::createLayer(int neuronCount, int neuronInputsCount) {
     }
     neuralNetwork.push_back(neuronLayer);
 }
-vector<float> Network::forwardPropagate(vector<float> input) {
+void Network::forwardPropagate(vector<float> input) {
     vector<vector<Neuron> > updatedNetwork;
     vector<vector<float> > layerResults;
     int layerCount = 0;
@@ -111,7 +111,7 @@ vector<float> Network::forwardPropagate(vector<float> input) {
         layerCount++;
     }
     neuralNetwork = updatedNetwork;
-    return layerResults[layerResults.size() - 1];
+    // return layerResults[layerResults.size() - 1];
 }
 
 float Network::derivateSimplifiedSigmoidFunc(float value) {
@@ -223,4 +223,14 @@ void Network::setWeights(int layerIndex, vector<vector<float> > weightsParam) {
     for (int i = 0; i < weightsParam.size(); i++) {
         neuralNetwork[layerIndex][i].setWeights(weightsParam[i]);
     }
+}
+
+vector<float> Network::getOutputLayerResults() {
+    vector<float> outputLayerResults;
+    int layerCount = neuralNetwork.size();
+    // iterate over neurons
+    for (int i = 0; i < neuralNetwork[layerCount - 1].size(); i++) {
+        outputLayerResults.push_back(neuralNetwork[layerCount - 1][i].getLastCalculatedOutput());
+    }
+    return outputLayerResults;
 }

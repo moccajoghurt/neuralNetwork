@@ -21,7 +21,7 @@ public:
         return bias;
     }
     float getOutput(vector<float> input);
-    vector<float> getLastInput() {
+    vector<float>& getLastInput() {
         return lastInput;
     }
     float getLearningRate() {
@@ -29,7 +29,7 @@ public:
     }
     void updateWeight(int index, float newVal);
     /******************* FUNCTIONS FOR UNIT TESTS */
-    vector<float> getWeights() {
+    vector<float>& getWeights() {
         return weights;
     }
     float getBiasWeight() {
@@ -59,11 +59,12 @@ public:
         srand (static_cast <unsigned> (time(0)));
     }
     void createLayer(int neuronCount, int neuronInputsCount = -1);
-    vector<float> forwardPropagate(vector<float> input);
+    void forwardPropagate(vector<float> input);
     void backPropagate(vector<float> trainingValues);
     float derivateSimplifiedSigmoidFunc(float value);
     float derivateLogisticFunc(float value);
     void setWeights(int layerIndex, vector<vector<float> > weightsParam);
+    vector<float> getOutputLayerResults();
     /******************* FUNCTIONS FOR UNIT TESTS */
     vector<vector<Neuron> >& getNetwork() {
         return neuralNetwork;
