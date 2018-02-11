@@ -6,8 +6,23 @@ typedef struct Size {
     int height;
 } size;
 
-typedef struct FilterMatrixTypes {
+enum FilterType {
+    SHARPEN_FILTER,
+    EDGE_FILTER0,
+    EDGE_FILTER1,
+    EDGE_FILTER2,
+    EMBOSS_FILTER,
+    IDENTITY
+};
 
+
+class FilterMatrix {
+public:
+    int** applyFilter(FilterType type) {
+
+    }
+private:
+    Size filterMatrixSize;
     int sharpenFilterMatrix[3][3] = {
         {0, -1, 0},
         {-1, 5, -1},
@@ -32,31 +47,32 @@ typedef struct FilterMatrixTypes {
         {-1, -1, -1}
     };
 
+    int embossFilterMatrix[3][3] = {
+        {-2, -1, 0},
+        {-1, 1, 1},
+        {0, 1, 2}
+    };
+
     int identityFilterMatrix[3][3] = {
         {0, 0, 0},
         {0, 1, 0},
         {0, 0, 0}
     };
-
-} FilterMatrixTypes;
-
-class FilterMatrix {
-
-private:
-    Size filterMatrixSize;
 };
 
 class FeatureMap {
-
+public:
+    Size getSize();
 private:
     int** featureMap;
 };
 
 class Convolution {
 public:
+    // TODO: use CImg-Library for image import
     Convolution();
 
-    
+    FeatureMap convolute(Size targetSize = {0, 0}, int stepSize = 1);
 
 private:
     string imgFolderPath;
