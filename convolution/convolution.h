@@ -119,7 +119,7 @@ class Convolution {
 public:
     Convolution();
 
-    FeatureMapImage& convolute(Size targetSize = {0, 0}, int stepSize = 1);
+    FeatureMapImage& convolute(FeatureMapImage& f, FilterMatrix& filt, Size targetSize = {0, 0}, int stepSize = 1);
 
 private:
     string imgFolderPath;
