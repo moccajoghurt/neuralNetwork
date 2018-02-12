@@ -9,6 +9,8 @@ FeatureMapImage& Convolution::wideConvolve(FeatureMapImage& featureMapImage, Fil
     if (featureMapImage.hasColors()) {
         
         vector<vector<RGBPixel> > newRGBImg;
+        vector<vector<RGBPixel> >& RGBFeatureMap = featureMapImage.getRGBFeatureMap();
+        vector<vector<int> >& filterMatrixVec = filterMatrix.getFilterMatrixVec();
         for (int i = 0; i < featureMapWidth; i += stepSize) {
             vector<RGBPixel> RGBPixelCol;
             for (int n = 0; n < featureMapHeight; n += stepSize) {
@@ -17,8 +19,6 @@ FeatureMapImage& Convolution::wideConvolve(FeatureMapImage& featureMapImage, Fil
                 int newBPixel = 0;
                 int filterMatrixWidth = filterMatrix.getSize().width;
                 int filterMatrixHeight = filterMatrix.getSize().height;
-                vector<vector<RGBPixel> >& RGBFeatureMap = featureMapImage.getRGBFeatureMap();
-                vector<vector<int> >& filterMatrixVec = filterMatrix.getFilterMatrixVec();
                 for (int x = 0; x < filterMatrixWidth; x++) {
                     for (int y = 0; y < filterMatrixHeight; y++) {
                         int xPosRelativeToFilter = i + (-filterMatrixWidth/2 + x);
@@ -44,18 +44,18 @@ FeatureMapImage& Convolution::wideConvolve(FeatureMapImage& featureMapImage, Fil
             }
             newRGBImg.push_back(RGBPixelCol);
         }
-        featureMapImage.setSize({newRGBImg[0].size(), newRGBImg.size()});
+        featureMapImage.setSize({newRGBImg.size(), newRGBImg[0].size()});
         featureMapImage.setRGBFeatureMap(newRGBImg);
     } else {
         vector<vector<GreyPixel> > newGreyScaleImg;
+        vector<vector<GreyPixel> >& GreyscaleFeatureMap = featureMapImage.getGreyscaleFeatureMap();
+        vector<vector<int> >& filterMatrixVec = filterMatrix.getFilterMatrixVec();
         for (int i = 0; i < featureMapWidth; i += stepSize) {
             vector<GreyPixel> greyPixelCol;
             for (int n = 0; n < featureMapHeight; n += stepSize) {
                 uint_t newPixelValue = 0;
                 int filterMatrixWidth = filterMatrix.getSize().width;
                 int filterMatrixHeight = filterMatrix.getSize().height;
-                vector<vector<GreyPixel> >& GreyscaleFeatureMap = featureMapImage.getGreyscaleFeatureMap();
-                vector<vector<int> >& filterMatrixVec = filterMatrix.getFilterMatrixVec();
                 for (int x = 0; x < filterMatrixWidth; x++) {
                     for (int y = 0; y < filterMatrixHeight; y++) {
                         int xPosRelativeToFilter = i + (-filterMatrixWidth/2 + x);
@@ -75,7 +75,7 @@ FeatureMapImage& Convolution::wideConvolve(FeatureMapImage& featureMapImage, Fil
             }
             newGreyScaleImg.push_back(greyPixelCol);
         }
-        featureMapImage.setSize({newGreyScaleImg[0].size(), newGreyScaleImg.size()});
+        featureMapImage.setSize({newGreyScaleImg.size(), newGreyScaleImg[0].size()});
         featureMapImage.setGreyscaleFeatureMap(newGreyScaleImg);
     }
 }
@@ -84,59 +84,73 @@ FeatureMapImage& Convolution::maxPool(FeatureMapImage& featureMapImage, const Si
     int featureMapWidth = featureMapImage.getSize().width;
     int featureMapHeight = featureMapImage.getSize().height;
 
+    if (featureMapWidth % windowSize.width != 0 || featureMapHeight % windowSize.height != 0) {
+        cout << "maxPool(): warning! dimensions of featureMap and slidingWindow are not divisible. Data loss at corners will occur!" << endl;
+    }
+
     if (featureMapImage.hasColors()) {
-        
+        vector<vector<RGBPixel> > newRGBImg;
+        vector<vector<RGBPixel> >& RGBFeatureMap = featureMapImage.getRGBFeatureMap(); // for the old vals
         for (int i = 0; i < featureMapWidth; i += windowSize.width) {
             vector<RGBPixel> RGBPixelCol;
             for (int n = 0; n < featureMapHeight; n += windowSize.height) {
-                int newRPixel = 0;
-                int newGPixel = 0;
-                int newBPixel = 0;
-                vector<vector<RGBPixel> >& RGBFeatureMap = featureMapImage.getRGBFeatureMap(); // for the old vals
+                uchar_t newRPixel = 0;
+                uchar_t newGPixel = 0;
+                uchar_t newBPixel = 0;
                 for (int x = 0; x < windowSize.width; x++) {
                     for (int y = 0; y < windowSize.height; y++) {
-                        int xPosRelativeToFilter = i + (-windowSize.width/2 + x);
+                        int xPosRelativeToFilter = i + x;
                         if (xPosRelativeToFilter < 0 || xPosRelativeToFilter >= featureMapWidth) {
                             continue;
                         }
-                        int yPosRelativeToFilter = n + (-windowSize.height/2 + y);
+                        int yPosRelativeToFilter = n + y;
                         if (yPosRelativeToFilter < 0 || yPosRelativeToFilter >= featureMapHeight) {
                             continue;
                         }
-                        
+                        if (RGBFeatureMap[xPosRelativeToFilter][yPosRelativeToFilter].r > newRPixel) {
+                            newRPixel = RGBFeatureMap[xPosRelativeToFilter][yPosRelativeToFilter].r;
+                        }
+                        if (RGBFeatureMap[xPosRelativeToFilter][yPosRelativeToFilter].g > newGPixel) {
+                            newGPixel = RGBFeatureMap[xPosRelativeToFilter][yPosRelativeToFilter].g;
+                        }
+                        if (RGBFeatureMap[xPosRelativeToFilter][yPosRelativeToFilter].b > newBPixel) {
+                            newBPixel = RGBFeatureMap[xPosRelativeToFilter][yPosRelativeToFilter].b;
+                        }
                     }
                 }
-                RGBPixelCol.push_back({(uchar_t)newRPixel, (uchar_t)newGPixel, (uchar_t)newBPixel});
+                RGBPixelCol.push_back({newRPixel, newGPixel, newBPixel});
             }
             newRGBImg.push_back(RGBPixelCol);
         }
-        featureMapImage.setSize({newRGBImg[0].size(), newRGBImg.size()});
+        featureMapImage.setSize({newRGBImg.size(), newRGBImg[0].size()});
         featureMapImage.setRGBFeatureMap(newRGBImg);
     } else {
         vector<vector<GreyPixel> > newGreyScaleImg;
-        for (int i = 0; i < featureMapWidth; i += stepSize) {
+        vector<vector<GreyPixel> >& GreyscaleFeatureMap = featureMapImage.getGreyscaleFeatureMap();
+        for (int i = 0; i < featureMapWidth; i += windowSize.width) {
             vector<GreyPixel> greyPixelCol;
-            for (int n = 0; n < featureMapHeight; n += stepSize) {
-                uint_t newPixelValue = 0;
-                vector<vector<GreyPixel> >& GreyscaleFeatureMap = featureMapImage.getGreyscaleFeatureMap();
-                for (int x = 0; x < filterMatrixWidth; x++) {
-                    for (int y = 0; y < filterMatrixHeight; y++) {
-                        int xPosRelativeToFilter = i + (-windowSize.width/2 + x);
+            for (int n = 0; n < featureMapHeight; n += windowSize.height) {
+                uchar_t newPixelValue = 0;
+                for (int x = 0; x < windowSize.width; x++) {
+                    for (int y = 0; y < windowSize.height; y++) {
+                        int xPosRelativeToFilter = i + x;
                         if (xPosRelativeToFilter < 0 || xPosRelativeToFilter >= featureMapWidth) {
                             continue;
                         }
-                        int yPosRelativeToFilter = n + (-windowSize.height/2 + y);
+                        int yPosRelativeToFilter = n + y;
                         if (yPosRelativeToFilter < 0 || yPosRelativeToFilter >= featureMapHeight) {
                             continue;
                         }
-                        newPixelValue += 0;
+                        if (GreyscaleFeatureMap[xPosRelativeToFilter][yPosRelativeToFilter].p > newPixelValue) {
+                            newPixelValue = GreyscaleFeatureMap[xPosRelativeToFilter][yPosRelativeToFilter].p;
+                        }
                     }
                 }
-                greyPixelCol.push_back({(uchar_t)newPixelValue});
+                greyPixelCol.push_back({newPixelValue});
             }
             newGreyScaleImg.push_back(greyPixelCol);
         }
-        featureMapImage.setSize({newGreyScaleImg[0].size(), newGreyScaleImg.size()});
+        featureMapImage.setSize({newGreyScaleImg.size(), newGreyScaleImg[0].size()});
         featureMapImage.setGreyscaleFeatureMap(newGreyScaleImg);
     }
 }

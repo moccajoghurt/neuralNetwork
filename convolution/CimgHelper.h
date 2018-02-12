@@ -24,7 +24,7 @@ public:
             }
             imgBuf.push_back(imgRow);
         }
-        FeatureMapImage featureMapImage(true, {imgBuf[0].size(), imgBuf.size()}, imgBuf);
+        FeatureMapImage featureMapImage(true, {imgBuf.size(), imgBuf[0].size()}, imgBuf);
         return featureMapImage;
     }
 
@@ -41,7 +41,7 @@ public:
             }
             imgBuf.push_back(imgRow);
         }
-        FeatureMapImage featureMapImage(false, {imgBuf[0].size(), imgBuf.size()}, imgBuf);
+        FeatureMapImage featureMapImage(false, {imgBuf.size(), imgBuf[0].size()}, imgBuf);
         return featureMapImage;
     }
 
