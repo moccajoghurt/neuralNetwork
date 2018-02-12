@@ -24,10 +24,7 @@ public:
             }
             imgBuf.push_back(imgRow);
         }
-        FeatureMapImage featureMapImage;
-        featureMapImage.setRGBFeatureMap(imgBuf);
-        featureMapImage.setHasColors(true);
-        featureMapImage.setSize({imgBuf[0].size(), imgBuf.size()});
+        FeatureMapImage featureMapImage(true, {imgBuf[0].size(), imgBuf.size()}, imgBuf);
         return featureMapImage;
     }
 
@@ -44,11 +41,7 @@ public:
             }
             imgBuf.push_back(imgRow);
         }
-        FeatureMapImage featureMapImage;
-        featureMapImage.setGreyscaleFeatureMap(imgBuf);
-        featureMapImage.setHasColors(false);
-        featureMapImage.setSize({(uint_t)imgBuf[0].size(), (uint_t)imgBuf.size()});
-
+        FeatureMapImage featureMapImage(false, {imgBuf[0].size(), imgBuf.size()}, imgBuf);
         return featureMapImage;
     }
 
