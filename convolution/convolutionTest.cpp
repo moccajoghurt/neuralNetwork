@@ -115,15 +115,15 @@ void maxPoolingCreatesCorrectFeatureMapData() {
 }
 
 void playField() {
-    FeatureMapImage colorFm = CimgHelper::importRGBImage("Cat.bmp");
-    FeatureMapImage greyFm = CimgHelper::importGreyscaleImage("Cat.bmp");
+    FeatureMapImage colorFm = CimgHelper::importRGBImage("Dog.bmp");
+    FeatureMapImage greyFm = CimgHelper::importGreyscaleImage("Dog.bmp");
 
-    EmbossFilterMatrix sfm;
-    CimgHelper::displayFeatureMapImage(colorFm);
-    for (int i = 0; i < 5; i++) {
-        Convolution::wideConvolve(colorFm, sfm);
-        Convolution::maxPool(colorFm, {2, 2});
-        CimgHelper::displayFeatureMapImage(colorFm);
+    Edge2FilterMatrix sfm;
+    CimgHelper::displayFeatureMapImage(greyFm);
+    for (int i = 0; i < 2; i++) {
+        Convolution::wideConvolve(greyFm, sfm);
+        Convolution::maxPool(greyFm, {3, 3});
+        CimgHelper::displayFeatureMapImage(greyFm);
     }
 }
 
