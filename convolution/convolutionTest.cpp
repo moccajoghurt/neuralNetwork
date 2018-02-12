@@ -1,11 +1,11 @@
 #include <iostream>
 #include "convolution.h"
-#include "CimgHelper.h"
+#include "CimgHelper.h" // for debugging, remove later
 
 using namespace std;
 
-void wideConvolutionCalculatesCorrectValuesTest() {
-    // test with greyscale
+void wideConvolutionCalculatesCorrectValueTest() {
+    // test with greyscale, colored implementation is nearly identical but way more time-consuming to test
     vector<vector<GreyPixel> > gfm;
     vector<GreyPixel> row1;
     row1.push_back({105});
@@ -32,18 +32,22 @@ void wideConvolutionCalculatesCorrectValuesTest() {
     }
 }
 
+void playField() {
+    FeatureMapImage colorFm = CimgHelper::importRGBImage("Cat.bmp");
+    FeatureMapImage greyFm = CimgHelper::importGreyscaleImage("Cat.bmp");
+
+    EmbossFilterMatrix sfm;
+    CimgHelper::displayFeatureMapImage(colorFm);
+    Convolution::wideConvolve(colorFm, sfm);
+    CimgHelper::displayFeatureMapImage(colorFm);
+
+    CimgHelper::displayFeatureMapImage(greyFm);
+    Convolution::wideConvolve(greyFm, sfm);
+    CimgHelper::displayFeatureMapImage(greyFm);
+}
+
 int main() {
-    // FeatureMapImage colorFm = CimgHelper::importRGBImage("Cat.bmp");
-    // FeatureMapImage greyFm = CimgHelper::importGreyscaleImage("Cat.bmp");
-
-    // Edge0FilterMatrix sfm;
-    // CimgHelper::displayFeatureMapImage(colorFm);
-    // Convolution::wideConvolve(colorFm, sfm);
-    // CimgHelper::displayFeatureMapImage(colorFm);
-
-    // CimgHelper::displayFeatureMapImage(greyFm);
-    // Convolution::wideConvolve(greyFm, sfm);
-    // CimgHelper::displayFeatureMapImage(greyFm);
-
-    wideConvolutionCalculatesCorrectValuesTest();
+    wideConvolutionCalculatesCorrectValueTest();
+    
+    playField();
 }

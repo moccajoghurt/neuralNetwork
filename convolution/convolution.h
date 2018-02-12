@@ -190,11 +190,7 @@ public:
     Convolution();
 
     static FeatureMapImage& wideConvolve(FeatureMapImage& f, FilterMatrix& filt, int stepSize = 1); // with zero-padding
-
-private:
-    string imgFolderPath;
-    Size featureMapSize;
-    
+    static FeatureMapImage& maxPool(FeatureMapImage& f, const Size windowSize);
 };
 
 #endif // _CONVOLUTION_H_
